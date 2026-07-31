@@ -5,3 +5,4 @@ requests
 pydub
 audioop-lts
 psycopg2-binary
+flask
