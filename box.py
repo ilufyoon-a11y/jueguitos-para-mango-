@@ -43,7 +43,7 @@ async def iniciar_box(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
 
     if not es_admin_sesion(update.effective_user.id):
-        await update.message.reply_text("𝖲𝗈𝗅𝗈 𝗊𝗎𝗂𝖾𝗇 𝗂𝗇𝗂𝖼𝗂𝗈 𝗅𝖺 𝗌𝖾𝗌𝗂𝗈𝗇 𝗉𝗎𝖾𝖽𝖾 𝗂𝗇𝗂𝖼𝗂𝖺𝗋 𝗅𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 🚫")
+        await update.message.reply_text("ⓘ ˖ ࣪𝖲𝗈𝗅𝗈 𝗊𝗎𝗂𝖾𝗇 𝗂𝗇𝗂𝖼𝗂𝗈 𝗅𝖺 𝗌𝖾𝗌𝗂𝗈𝗇 𝗉𝗎𝖾𝖽𝖾 𝗂𝗇𝗂𝖼𝗂𝖺𝗋 𝗅𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 ᵎᵎ")
         return
 
     if chat_id not in sesion_box:
@@ -117,8 +117,8 @@ async def manejar_mensajes_box(update: Update, context: ContextTypes.DEFAULT_TYP
     gid = esperando_elementos[user_id]
 
     emojis_originales = extraer_emojis(texto)
-    if len(emojis_originales) != 7:
-        await update.message.reply_text("ⓘ ¡𝖴𝗇 𝗆𝗈𝗆𝖾𝗇𝗍𝗈! 𝖤𝗌𝗈𝗌 𝗇𝗈 𝗌𝗈𝗇 𝟩 𝖾𝗆𝗈𝗃𝗂𝗌; 𝗉𝗈𝗋 𝖿𝖺𝗏𝗈𝗋, 𝗂𝗇𝗍𝖾𝗇𝗍𝖺𝗅𝗈 𝖽𝖾 𝗇𝗎𝖾𝗏𝗈.")
+    if len(emojis_originales) != 5:
+        await update.message.reply_text("ⓘ ¡𝖴𝗇 𝗆𝗈𝗆𝖾𝗇𝗍𝗈! 𝖤𝗌𝗈𝗌 𝗇𝗈 𝗌𝗈𝗇 𝟧 𝖾𝗆𝗈𝗃𝗂𝗌; 𝗉𝗈𝗋 𝖿𝖺𝗏𝗈𝗋, 𝗂𝗇𝗍𝖾𝗇𝗍𝖺𝗅𝗈 𝖽𝖾 𝗇𝗎𝖾𝗏𝗈.")
         return
 
     # Normalizar para comparación consistente
@@ -194,7 +194,7 @@ async def adivinar_box(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"¡𝖯𝗎𝗇𝗍𝗈 𝗉𝖺𝗋𝖺 {user_name}, 𝖾𝗌𝖾 𝖺𝗋𝗍ı́𝖼𝗎𝗅𝗈 𝗌𝗂 𝖾𝗌𝗍𝖺𝖻𝖺 𝖾𝗇 𝗅𝖺 𝖼𝖺𝗃𝖺!\n\n"
         f"𝖫𝗅𝖾𝗏𝖺𝗆𝗈𝗌 [{total}/𝟩] 𝗈𝖻𝗃𝖾𝗍𝗈𝗌 𝖽𝖾𝗌𝖼𝗎𝖻𝗂𝖾𝗋𝗍𝗈𝗌.")
 
-    if total == 7:
+    if total == 5:
         sesion["activa"] = False
         tabla = sorted(sesion["puntajes"].items(), key=lambda x: x[1], reverse=True)
         medallas = ["🥇", "🥈", "🥉"]
