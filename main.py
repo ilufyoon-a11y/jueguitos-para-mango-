@@ -36,7 +36,7 @@ from utils import (
 # JUEGOS DISPONIBLES
 # =====================================================================
 
-# ── BOX ✔️ ──────────────────────────────────────────────────────────
+# ── BOX ──────────────────────────────────────────────────────────
 from box import (
     unirse_box, iniciar_box,
     manejar_botones_box,
@@ -51,13 +51,13 @@ from carrera import (
     cmd_start_carrera, cmd_cancelar_carrera,
 )
 
-# ── CACERIA ✔️ ──────────────────────────────────────────────────────
+# ── CACERIA ──────────────────────────────────────────────────────
 from caseria import (
     unirse_caseria, iniciar_caseria,
     manejar_botones_caseria,
 )
 
-# ── CHARADA ✔️ ──────────────────────────────────────────────────────
+# ── CHARADA  ──────────────────────────────────────────────────────
 from charada import (
     unirse_charada, iniciar_charada,
     manejar_botones_charada,
@@ -65,13 +65,13 @@ from charada import (
     sesion_charada,
 )
 
-# ── GUESS ✔️ ─────────────────────────────────────────────────────────
+# ── GUESS  ─────────────────────────────────────────────────────────
 from guessong import (
     unirse_adivina, iniciar_adivina_juego,
     verificar_respuesta_musica, manejar_boton_unirse,
 )
 
-# ── JUMBLE ✔️ ─────────────────────────────────────────────────────
+# ── JUMBLE  ─────────────────────────────────────────────────────
 from anagrama import (
     cmd_anagrama, cmd_anagrama4, cmd_start_anagrama,
     manejar_botones_anagrama,
@@ -79,7 +79,7 @@ from anagrama import (
     sesion_anagrama, esperando_moderador,
 )
 
-# ── PIRATA ✔️ ─────────────────────────────────────────────────────────
+# ── PIRATA  ─────────────────────────────────────────────────────────
 from pirata import (
     unirse_pirata, iniciar_pirata,
     manejar_botones_pirata,
@@ -94,13 +94,13 @@ from mayoromenor import (
     sesion_mom,
 )
 
-# ── ZOMBIE ✔️ ──────────────────────────────────────────────────────────
+# ── ZOMBIE  ──────────────────────────────────────────────────────────
 from zombie import (
     unirse_zombie, iniciar_zombie,
     manejar_botones_zombie,
 )
 
-# ── AHORCADO ✔️ ───────────────────────────────────────────────────────
+# ── AHORCADO  ───────────────────────────────────────────────────────
 from ahorcado import (
     unirse_ahorcado, iniciar_ahorcado,
     manejar_botones_ahorcado,
@@ -282,7 +282,7 @@ if __name__ == '__main__':
     if not token_bot:
         raise ValueError("❌ ¡Error crítico! No se encontró la variable 'TOKEN'.")
 
-    print("🤖 Iniciando bot de Telegram con run_polling...")
+    print(" Iniciando bot de Telegram con run_polling...")
     application = ApplicationBuilder().token(token_bot).build()
 
     # Comandos generales
