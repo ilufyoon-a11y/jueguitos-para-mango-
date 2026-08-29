@@ -20,7 +20,7 @@ sesion_pirata = {}   # chat_id -> {...}
 _tareas_turno = {}   # chat_id -> asyncio.Task
 
 MAX_JUGADORES = 10
-TOTAL_RANURAS = 25
+TOTAL_RANURAS = 20
 TIEMPO_TURNO = 15
 
 def _sesion_base() -> dict:
@@ -37,7 +37,7 @@ def _sesion_base() -> dict:
 
 async def unirse_pirata(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not es_admin_sesion(update.effective_user.id):
-        await update.message.reply_text("𝖲𝗈𝗅𝗈 𝗊𝗎𝗂𝖾𝗇 𝗂𝗇𝗂𝖼𝗂𝗈 𝗅𝖺 𝗌𝖾𝗌𝗂𝗈𝗇 𝗉𝗎𝖾𝖽𝖾 𝖼𝗋𝖾𝖺𝗋 𝗎𝗇𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 🚫")
+        await update.message.reply_text("ⓘ ˖ ࣪ 𝖲𝗈𝗅𝗈 𝗊𝗎𝗂𝖾𝗇 𝗂𝗇𝗂𝖼𝗂𝗈 𝗅𝖺 𝗌𝖾𝗌𝗂𝗈𝗇 𝗉𝗎𝖾𝖽𝖾 𝖼𝗋𝖾𝖺𝗋 𝗎𝗇𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 ᵎᵎ")
         return
     chat_id = update.effective_chat.id
     sesion_pirata[chat_id] = _sesion_base()
@@ -54,7 +54,7 @@ async def iniciar_pirata(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
 
     if not es_admin_sesion(update.effective_user.id):
-        await update.message.reply_text("𝖲𝗈𝗅𝗈 𝗊𝗎𝗂𝖾𝗇 𝗂𝗇𝗂𝖼𝗂𝗈 𝗅𝖺 𝗌𝖾𝗌𝗂𝗈𝗇 𝗉𝗎𝖾𝖽𝖾 𝗂𝗇𝗂𝖼𝗂𝖺𝗋 𝗅𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 🚫")
+        await update.message.reply_text("ⓘ ˖ ࣪ 𝖲𝗈𝗅𝗈 𝗊𝗎𝗂𝖾𝗇 𝗂𝗇𝗂𝖼𝗂𝗈 𝗅𝖺 𝗌𝖾𝗌𝗂𝗈𝗇 𝗉𝗎𝖾𝖽𝖾 𝗂𝗇𝗂𝖼𝗂𝖺𝗋 𝗅𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 ᵎᵎ")
         return
 
     sesion = sesion_pirata.get(chat_id)
@@ -117,7 +117,7 @@ async def enviar_turno_pirata(chat_id, context):
     await _enviar_seguro(
         context.bot.send_message,
         chat_id=chat_id,
-        text=f"<b>¡{nombre_actual} 𝖾𝗌 𝗍𝗎 𝗍𝗎𝗋𝗇𝗈, 𝖾𝗌𝖼𝗈𝗀𝖾 𝗎𝗇𝖺 𝗋𝖺𝗇𝗎𝗋𝖺!</b>",
+        text=f"<b>¡𝖤𝗌 𝗍𝗎 𝗍𝗎𝗋𝗇𝗈, {nombre_actual}, 𝖾𝗌𝖼𝗈𝗀𝖾 𝗎𝗇𝖺 𝗋𝖺𝗇𝗎𝗋𝖺!</b>",
         parse_mode="HTML",
         reply_markup=InlineKeyboardMarkup(botones)
     )
@@ -155,7 +155,7 @@ async def _auto_skip(chat_id, jugador_id, nombre, context):
         sticker="CAACAgIAAxkBA0Y_BGpDJx8fjT0XysClgbwsbIDR6Y8kAAI2bAEAAWOLRgw-W-3HHw-_YjwE"
             )
         else:
-            await context.bot.send_message(chat_id=chat_id, text="𝖳𝗈𝖽𝗈𝗌 𝖿𝗎𝖾𝗋𝗈𝗇 𝖾𝗅𝗂𝗆𝗂𝗇𝖺𝖽𝗈𝗌 🕊️")
+            await context.bot.send_message(chat_id=chat_id, text="𝖳𝗈𝖽𝗈𝗌 𝖿𝗎𝖾𝗋𝗈𝗇 𝖾𝗅𝗂𝗆𝗂𝗇𝖺𝖽𝗈𝗌...")
         sesion_pirata.pop(chat_id, None)
         return
 
