@@ -12,7 +12,10 @@ logger = logging.getLogger(__name__)
 sesion_caseria = {}   # chat_id -> {...}
 _tareas_shuffle = {}  # chat_id -> asyncio.Task
 
-TIEMPO_SHUFFLE = 10  # segundos entre cada mezcla del tablero
+MAX_JUGADORES = 5
+TIEMPO_VISIBLE = 30  # segundos que el tablero se muestra antes de ocultarse
+TIEMPO_OCULTO = 10   # segundos que el tablero permanece oculto
+EMOJI_OCULTO = "🕳️"   # emoji que se muestra mientras el tablero esta oculto
 
 POOL_EMOJIS_CASERIA = [
     "💭", "💜", "♥️", "💙", "💚", "🩶", "🩵", "💛", "🧡", "🩷", "❤️", "🤍", "🖤", "🤎", "🗡️", 
@@ -43,13 +46,13 @@ POOL_EMOJIS_CASERIA = [
 
 # ================= HELPERS =================
 
-def construir_teclado_tablero(tablero: list) -> InlineKeyboardMarkup:
+def construir_teclado_tablero(tablero: list, oculto: bool = False) -> InlineKeyboardMarkup:
     botones = []
     for fila in range(6):
         row = []
         for col in range(8):
             idx = fila * 8 + col
-            emoji = tablero[idx]
+            emoji = EMOJI_OCULTO if oculto else tablero[idx]
             row.append(InlineKeyboardButton(emoji, callback_data=f"caseria_tablero_{idx}"))
         botones.append(row)
     return InlineKeyboardMarkup(botones)
@@ -82,7 +85,7 @@ async def unirse_caseria(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
 
     if not es_admin_sesion(update.effective_user.id):
-        await update.message.reply_text("𝖲𝗈𝗅𝗈 𝗊𝗎𝗂𝖾𝗇 𝗂𝗇𝗂𝖼𝗂𝗈 𝗅𝖺 𝗌𝖾𝗌𝗂𝗈𝗇 𝗉𝗎𝖾𝖽𝖾 𝖼𝗋𝖾𝖺𝗋 𝗎𝗇𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 🚫")
+        await update.message.reply_text("ⓘ ˖ ࣪ 𝖲𝗈𝗅𝗈 𝗊𝗎𝗂𝖾𝗇 𝗂𝗇𝗂𝖼𝗂𝗈 𝗅𝖺 𝗌𝖾𝗌𝗂𝗈𝗇 𝗉𝗎𝖾𝖽𝖾 𝖼𝗋𝖾𝖺𝗋 𝗎𝗇𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 ᵎᵎ")
         return
 
     if chat_id in _tareas_shuffle and not _tareas_shuffle[chat_id].done():
@@ -95,6 +98,7 @@ async def unirse_caseria(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "tablero": [],
         "tablero_msg_id": None,
         "cartillas_msg_id": None,
+        "oculto": False,
     }
 
     boton = InlineKeyboardButton("੭੭ㅤㅤ𝗨𝗡𝗜𝗥𝗠𝗘ㅤㅤ!¡", callback_data="unirme_caseria_click")
@@ -110,7 +114,7 @@ async def iniciar_caseria(update: Update, context: ContextTypes.DEFAULT_TYPE):
     sesion = sesion_caseria.get(chat_id)
 
     if not es_admin_sesion(update.effective_user.id):
-        await update.message.reply_text("𝖲𝗈𝗅𝗈 𝗊𝗎𝗂𝖾𝗇 𝗂𝗇𝗂𝖼𝗂𝗈 𝗅𝖺 𝗌𝖾𝗌𝗂𝗈𝗇 𝗉𝗎𝖾𝖽𝖾 𝗂𝗇𝗂𝖼𝗂𝖺𝗋 𝗅𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 🚫")
+        await update.message.reply_text("ⓘ ˖ ࣪ 𝖲𝗈𝗅𝗈 𝗊𝗎𝗂𝖾𝗇 𝗂𝗇𝗂𝖼𝗂𝗈 𝗅𝖺 𝗌𝖾𝗌𝗂𝗈𝗇 𝗉𝗎𝖾𝖽𝖾 𝗂𝗇𝗂𝖼𝗂𝖺𝗋 𝗅𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 ᵎᵎ")
         return
 
     if not sesion or not sesion.get("fase_registro"):
@@ -166,32 +170,45 @@ async def iniciar_caseria(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     sesion["cartillas_msg_id"] = msg_cartillas.message_id
 
-async def _shuffle_tablero(chat_id, context):
-    while True:
-        await asyncio.sleep(TIEMPO_SHUFFLE)
-        sesion = sesion_caseria.get(chat_id)
-        if not sesion or not sesion.get("activa"):
-            return
-
-        random.shuffle(sesion["tablero"])
-        nuevo_markup = construir_teclado_tablero(sesion["tablero"])
+async def _editar_markup_tablero(chat_id, context, sesion, markup):
+    try:
+        await context.bot.edit_message_reply_markup(
+            chat_id=chat_id,
+            message_id=sesion["tablero_msg_id"],
+            reply_markup=markup
+        )
+    except Exception as e:
+        logger.warning(f"Caseria: fallo al actualizar tablero, reintentando ({e})")
+        await asyncio.sleep(1.5)
         try:
             await context.bot.edit_message_reply_markup(
                 chat_id=chat_id,
                 message_id=sesion["tablero_msg_id"],
-                reply_markup=nuevo_markup
+                reply_markup=markup
             )
-        except Exception as e:
-            logger.warning(f"Caseria: fallo al mezclar tablero, reintentando ({e})")
-            await asyncio.sleep(1.5)
-            try:
-                await context.bot.edit_message_reply_markup(
-                    chat_id=chat_id,
-                    message_id=sesion["tablero_msg_id"],
-                    reply_markup=nuevo_markup
-                )
-            except Exception as e2:
-                logger.error(f"Caseria: fallo definitivo al mezclar tablero ({e2})")
+        except Exception as e2:
+            logger.error(f"Caseria: fallo definitivo al actualizar tablero ({e2})")
+
+async def _shuffle_tablero(chat_id, context):
+
+    while True:
+        await asyncio.sleep(TIEMPO_VISIBLE)
+        sesion = sesion_caseria.get(chat_id)
+        if not sesion or not sesion.get("activa"):
+            return
+
+        sesion["oculto"] = True
+        markup_oculto = construir_teclado_tablero(sesion["tablero"], oculto=True)
+        await _editar_markup_tablero(chat_id, context, sesion, markup_oculto)
+
+        await asyncio.sleep(TIEMPO_OCULTO)
+        sesion = sesion_caseria.get(chat_id)
+        if not sesion or not sesion.get("activa"):
+            return
+
+        sesion["oculto"] = False
+        markup_visible = construir_teclado_tablero(sesion["tablero"], oculto=False)
+        await _editar_markup_tablero(chat_id, context, sesion, markup_visible)
 
 # ================= MANEJO DE BOTONES =================
 
@@ -207,6 +224,9 @@ async def manejar_botones_caseria(update: Update, context: ContextTypes.DEFAULT_
             return
         if sesion.get("activa"):
             await query.answer("ⓘ ˖ ࣪ ¡𝖫𝗈 𝗌𝗂𝖾𝗇𝗍𝗈, 𝗒𝖺 𝗁𝖺𝗒 𝗎𝗇𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 𝖾𝗇 𝖼𝗎𝗋𝗌𝗈 ᵎᵎ", show_alert=True)
+            return
+        if len(sesion["jugadores"]) >= MAX_JUGADORES:
+            await query.answer("ⓘ ˖ ࣪ ¡𝖫𝖺 𝗌𝖺𝗅𝖺 𝗒𝖺 𝗌𝖾 𝖾𝗇𝖼𝗎𝖾𝗇𝗍𝗋𝖺 𝗅𝗅𝖾𝗇𝖺 ᵎᵎ", show_alert=True)
             return
         if not any(j["id"] == user.id for j in sesion["jugadores"]):
             sesion["jugadores"].append({"id": user.id, "name": nombre_usuario(user)})
@@ -224,6 +244,10 @@ async def manejar_botones_caseria(update: Update, context: ContextTypes.DEFAULT_
         jugador = next((j for j in sesion["jugadores"] if j["id"] == user.id), None)
         if not jugador:
             await query.answer("ⓘ ˖ ࣪ 𝖫𝗈 𝗌𝗂𝖾𝗇𝗍𝗈, 𝗇𝗈 𝗉𝗎𝖾𝖽𝖾𝗌 𝗉𝖺𝗋𝗍𝗂𝖼𝗂𝗉𝖺𝗋 𝖾𝗇 𝖾𝗌𝗍𝖺 𝗉𝖺𝗋𝗍𝗂𝖽𝖺 ᵎᵎ", show_alert=True)
+            return
+
+        if sesion.get("oculto"):
+            await query.answer("ⓘ ˖ ࣪ ¡𝖤𝗅 𝗍𝖺𝖻𝗅𝖾𝗋𝗈 𝖾𝗌𝗍𝖺 𝗈𝖼𝗎𝗅𝗍𝗈, 𝖾𝗌𝗉𝖾𝗋𝖺 𝖺 𝗊𝗎𝖾 𝗏𝗎𝖾𝗅𝗏𝖺𝗇 𝖺 𝖺𝗉𝖺𝗋𝖾𝖼𝖾𝗋 𝗅𝗈𝗌 𝖾𝗆𝗈𝗃𝗂𝗌 ᵎᵎ", show_alert=True)
             return
 
         idx = int(query.data.split("_")[2])
